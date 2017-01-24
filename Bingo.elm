@@ -1,6 +1,7 @@
 module Bingo exposing (..)
 
-import Html
+import Html exposing (..)
+import Html.Attributes exposing (..)
 
 
 playerInfo name gameNumber =
@@ -10,8 +11,37 @@ playerInfo name gameNumber =
 playerInfoText name gameNumber =
   playerInfo name gameNumber
     |> String.toUpper
-    |> Html.text
+    |> text
 
+
+viewPlayer name gameNumber =
+  let
+      playerInfoText =
+        playerInfo name gameNumber
+          |> String.toUpper
+          |> text
+  in
+      h2 [ id "info", class "classy" ] [ playerInfoText ]
+
+viewHeader title =
+  header []
+    [ h1 [] [ text title ] ]
+
+
+viewFooter =
+  footer []
+    [ a [href "http://elm-lang.org" ]
+        [ text "Powered By Elm" ]
+    ]
+
+
+view =
+  div [ class "content" ]
+    [
+      viewHeader "BUZZWORD BINGO",
+      viewPlayer "Sid" 4,
+      viewFooter
+    ]
 
 main =
-  playerInfoText "Sid" 3
+  view
