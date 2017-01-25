@@ -4,16 +4,12 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
+playerInfo : String -> Int -> String
 playerInfo name gameNumber =
   name ++ " - Game #" ++ (toString gameNumber)
 
 
-playerInfoText name gameNumber =
-  playerInfo name gameNumber
-    |> String.toUpper
-    |> text
-
-
+viewPlayer : String -> Int -> Html msg
 viewPlayer name gameNumber =
   let
       playerInfoText =
@@ -23,18 +19,22 @@ viewPlayer name gameNumber =
   in
       h2 [ id "info", class "classy" ] [ playerInfoText ]
 
+
+viewHeader : String -> Html msg
 viewHeader title =
   header []
     [ h1 [] [ text title ] ]
 
 
+viewFooter : Html msg
 viewFooter =
   footer []
-    [ a [href "http://elm-lang.org" ]
+    [ a [ href "http://elm-lang.org" ]
         [ text "Powered By Elm" ]
     ]
 
 
+view : Html msg
 view =
   div [ class "content" ]
     [
@@ -43,5 +43,7 @@ view =
       viewFooter
     ]
 
+
+main : Html msg
 main =
   view
