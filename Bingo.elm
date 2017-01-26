@@ -4,6 +4,41 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
+-- MODEL
+type alias Model =
+  {
+    name : String,
+    gameNumber : Int,
+    entries: List Entry
+  }
+
+type alias Entry =
+  {
+    id : Int,
+    phrase : String,
+    points : Int,
+    marked : Bool
+  }
+
+initialModel : { name : String, gameNumber : Int, entries : List Entry }
+initialModel =
+    {
+      name = "Mike",
+      gameNumber = 1,
+      entries = initialEntries
+    }
+
+initialEntries : List Entry
+initialEntries =
+    [
+      Entry 1 "Future-Proof" 100 False,
+      Entry 2 "Doing Agile" 200 False,
+      Entry 3 "In The Cloud" 300 False,
+      Entry 4 "Rock-Star Ninja" 400 False
+    ]
+
+
+-- VIEW
 playerInfo : String -> Int -> String
 playerInfo name gameNumber =
   name ++ " - Game #" ++ (toString gameNumber)
@@ -34,16 +69,17 @@ viewFooter =
     ]
 
 
-view : Html msg
-view =
+view : Model -> Html msg
+view model =
   div [ class "content" ]
     [
       viewHeader "BUZZWORD BINGO",
-      viewPlayer "Sid" 4,
+      viewPlayer model.name model.gameNumber,
+      div [class "debug" ] [ text (toString model) ],
       viewFooter
     ]
 
 
 main : Html msg
 main =
-  view
+  view initialModel
