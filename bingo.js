@@ -9503,38 +9503,6 @@ var _user$project$Bingo$viewHeader = function (title) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Bingo$playerInfo = F2(
-	function (name, gameNumber) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			name,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				' - Game #',
-				_elm_lang$core$Basics$toString(gameNumber)));
-	});
-var _user$project$Bingo$viewPlayer = F2(
-	function (name, gameNumber) {
-		var playerInfoText = _elm_lang$html$Html$text(
-			_elm_lang$core$String$toUpper(
-				A2(_user$project$Bingo$playerInfo, name, gameNumber)));
-		return A2(
-			_elm_lang$html$Html$h2,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id('info'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('classy'),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: playerInfoText,
-				_1: {ctor: '[]'}
-			});
-	});
 var _user$project$Bingo$entriesUrl = 'http://localhost:3000/random-entries';
 var _user$project$Bingo$encodeScore = function (model) {
 	return _elm_lang$core$Json_Encode$object(
@@ -9557,15 +9525,9 @@ var _user$project$Bingo$encodeScore = function (model) {
 			}
 		});
 };
-var _user$project$Bingo$initialModel = {
-	name: 'Mike',
-	gameNumber: 1,
-	entries: {ctor: '[]'},
-	alertMessage: _elm_lang$core$Maybe$Nothing
-};
-var _user$project$Bingo$Model = F4(
-	function (a, b, c, d) {
-		return {name: a, gameNumber: b, entries: c, alertMessage: d};
+var _user$project$Bingo$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {name: a, gameNumber: b, entries: c, alertMessage: d, nameInput: e, gameState: f};
 	});
 var _user$project$Bingo$Entry = F4(
 	function (a, b, c, d) {
@@ -9588,6 +9550,139 @@ var _user$project$Bingo$scoreDecoder = A4(
 	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'score', _elm_lang$core$Json_Decode$int));
+var _user$project$Bingo$Playing = {ctor: 'Playing'};
+var _user$project$Bingo$EnteringName = {ctor: 'EnteringName'};
+var _user$project$Bingo$initialModel = {
+	name: 'Anonymous',
+	gameNumber: 1,
+	entries: {ctor: '[]'},
+	alertMessage: _elm_lang$core$Maybe$Nothing,
+	nameInput: '',
+	gameState: _user$project$Bingo$EnteringName
+};
+var _user$project$Bingo$ChangeGameState = function (a) {
+	return {ctor: 'ChangeGameState', _0: a};
+};
+var _user$project$Bingo$viewPlayer = F2(
+	function (name, gameNumber) {
+		return A2(
+			_elm_lang$html$Html$h2,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$id('info'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('classy'),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$href('#'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(
+								_user$project$Bingo$ChangeGameState(_user$project$Bingo$EnteringName)),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(name),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							' - Game #',
+							_elm_lang$core$Basics$toString(gameNumber))),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _user$project$Bingo$CancelName = {ctor: 'CancelName'};
+var _user$project$Bingo$SaveName = {ctor: 'SaveName'};
+var _user$project$Bingo$SetNameInput = function (a) {
+	return {ctor: 'SetNameInput', _0: a};
+};
+var _user$project$Bingo$viewNameInput = function (model) {
+	var _p0 = model.gameState;
+	if (_p0.ctor === 'EnteringName') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('name-inpput'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$input,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$type_('text'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$placeholder('Who\'s playing?'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$autofocus(true),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$value(model.nameInput),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onInput(_user$project$Bingo$SetNameInput),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$SaveName),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Save'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$button,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$CancelName),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Cancel'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	} else {
+		return _elm_lang$html$Html$text('');
+	}
+};
 var _user$project$Bingo$NewScore = function (a) {
 	return {ctor: 'NewScore', _0: a};
 };
@@ -9601,8 +9696,8 @@ var _user$project$Bingo$postScore = function (model) {
 var _user$project$Bingo$ShareScore = {ctor: 'ShareScore'};
 var _user$project$Bingo$CloseAlert = {ctor: 'CloseAlert'};
 var _user$project$Bingo$viewAlertMessage = function (alertMessage) {
-	var _p0 = alertMessage;
-	if (_p0.ctor === 'Just') {
+	var _p1 = alertMessage;
+	if (_p1.ctor === 'Just') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -9630,7 +9725,7 @@ var _user$project$Bingo$viewAlertMessage = function (alertMessage) {
 					}),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(_p0._0),
+					_0: _elm_lang$html$Html$text(_p1._0),
 					_1: {ctor: '[]'}
 				}
 			});
@@ -9650,14 +9745,46 @@ var _user$project$Bingo$getEntries = A2(
 		_elm_lang$core$Json_Decode$list(_user$project$Bingo$entryDecoder)));
 var _user$project$Bingo$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		switch (_p1.ctor) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
+			case 'ChangeGameState':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{gameState: _p2._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SaveName':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{name: model.nameInput, nameInput: '', gameState: _user$project$Bingo$Playing}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'CancelName':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{nameInput: '', gameState: _user$project$Bingo$Playing}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SetNameInput':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{nameInput: _p2._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'NewRandom':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{gameNumber: _p1._0}),
+						{gameNumber: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ShareScore':
@@ -9667,13 +9794,13 @@ var _user$project$Bingo$update = F2(
 					_1: _user$project$Bingo$postScore(model)
 				};
 			case 'NewScore':
-				if (_p1._0.ctor === 'Ok') {
+				if (_p2._0.ctor === 'Ok') {
 					var message = A2(
 						_elm_lang$core$Basics_ops['++'],
 						'Your score of ',
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(_p1._0._0.score),
+							_elm_lang$core$Basics$toString(_p2._0._0.score),
 							' was successfully shared!'));
 					return {
 						ctor: '_Tuple2',
@@ -9688,7 +9815,7 @@ var _user$project$Bingo$update = F2(
 					var message = A2(
 						_elm_lang$core$Basics_ops['++'],
 						'Error posting your score: ',
-						_elm_lang$core$Basics$toString(_p1._0._0));
+						_elm_lang$core$Basics$toString(_p2._0._0));
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -9708,27 +9835,27 @@ var _user$project$Bingo$update = F2(
 					_1: _user$project$Bingo$getEntries
 				};
 			case 'NewEntries':
-				if (_p1._0.ctor === 'Ok') {
+				if (_p2._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{entries: _p1._0._0}),
+							{entries: _p2._0._0}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var _p3 = _p1._0._0;
+					var _p4 = _p2._0._0;
 					var errorMessage = function () {
-						var _p2 = _p3;
-						switch (_p2.ctor) {
+						var _p3 = _p4;
+						switch (_p3.ctor) {
 							case 'NetworkError':
 								return 'Is the server running?';
 							case 'BadStatus':
-								return _elm_lang$core$Basics$toString(_p2._0.status);
+								return _elm_lang$core$Basics$toString(_p3._0.status);
 							case 'BadPayload':
-								return A2(_elm_lang$core$Basics_ops['++'], 'Decoding Failed: ', _p2._0);
+								return A2(_elm_lang$core$Basics_ops['++'], 'Decoding Failed: ', _p3._0);
 							default:
-								return _elm_lang$core$Basics$toString(_p3);
+								return _elm_lang$core$Basics$toString(_p4);
 						}
 					}();
 					return {
@@ -9751,7 +9878,7 @@ var _user$project$Bingo$update = F2(
 				};
 			default:
 				var markEntry = function (e) {
-					return _elm_lang$core$Native_Utils.eq(e.id, _p1._0) ? _elm_lang$core$Native_Utils.update(
+					return _elm_lang$core$Native_Utils.eq(e.id, _p2._0) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{marked: !e.marked}) : e;
 				};
@@ -9854,70 +9981,74 @@ var _user$project$Bingo$view = function (model) {
 					_0: _user$project$Bingo$viewAlertMessage(model.alertMessage),
 					_1: {
 						ctor: '::',
-						_0: _user$project$Bingo$viewEntryList(model.entries),
+						_0: _user$project$Bingo$viewNameInput(model),
 						_1: {
 							ctor: '::',
-							_0: _user$project$Bingo$viewScore(
-								_user$project$Bingo$sumMarkedPoints(model.entries)),
+							_0: _user$project$Bingo$viewEntryList(model.entries),
 							_1: {
 								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('button-group'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$button,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$NewGame),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('New Game'),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$button,
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$ShareScore),
-													_1: {ctor: '[]'}
-												},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('Share Score'),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}
-									}),
+								_0: _user$project$Bingo$viewScore(
+									_user$project$Bingo$sumMarkedPoints(model.entries)),
 								_1: {
 									ctor: '::',
 									_0: A2(
 										_elm_lang$html$Html$div,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('debug'),
+											_0: _elm_lang$html$Html_Attributes$class('button-group'),
 											_1: {ctor: '[]'}
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text(
-												_elm_lang$core$Basics$toString(model)),
-											_1: {ctor: '[]'}
+											_0: A2(
+												_elm_lang$html$Html$button,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$NewGame),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('New Game'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$button,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$ShareScore),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('Share Score'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
 										}),
 									_1: {
 										ctor: '::',
-										_0: _user$project$Bingo$viewFooter,
-										_1: {ctor: '[]'}
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('debug'),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(
+													_elm_lang$core$Basics$toString(model)),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _user$project$Bingo$viewFooter,
+											_1: {ctor: '[]'}
+										}
 									}
 								}
 							}
@@ -9932,7 +10063,7 @@ var _user$project$Bingo$main = _elm_lang$html$Html$program(
 		init: {ctor: '_Tuple2', _0: _user$project$Bingo$initialModel, _1: _user$project$Bingo$getEntries},
 		view: _user$project$Bingo$view,
 		update: _user$project$Bingo$update,
-		subscriptions: function (_p4) {
+		subscriptions: function (_p5) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})();
