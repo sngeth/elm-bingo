@@ -9536,6 +9536,27 @@ var _user$project$Bingo$viewPlayer = F2(
 			});
 	});
 var _user$project$Bingo$entriesUrl = 'http://localhost:3000/random-entries';
+var _user$project$Bingo$encodeScore = function (model) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'name',
+				_1: _elm_lang$core$Json_Encode$string(model.name)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'score',
+					_1: _elm_lang$core$Json_Encode$int(
+						_user$project$Bingo$sumMarkedPoints(model.entries))
+				},
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _user$project$Bingo$initialModel = {
 	name: 'Mike',
 	gameNumber: 1,
@@ -9557,6 +9578,27 @@ var _user$project$Bingo$entryDecoder = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'phrase', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'points', _elm_lang$core$Json_Decode$int),
 	_elm_lang$core$Json_Decode$succeed(false));
+var _user$project$Bingo$Score = F3(
+	function (a, b, c) {
+		return {id: a, name: b, score: c};
+	});
+var _user$project$Bingo$scoreDecoder = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$Bingo$Score,
+	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'score', _elm_lang$core$Json_Decode$int));
+var _user$project$Bingo$NewScore = function (a) {
+	return {ctor: 'NewScore', _0: a};
+};
+var _user$project$Bingo$postScore = function (model) {
+	var body = _elm_lang$http$Http$jsonBody(
+		_user$project$Bingo$encodeScore(model));
+	var url = 'http://localhost:3000/scores';
+	var request = A3(_elm_lang$http$Http$post, url, body, _user$project$Bingo$scoreDecoder);
+	return A2(_elm_lang$http$Http$send, _user$project$Bingo$NewScore, request);
+};
+var _user$project$Bingo$ShareScore = {ctor: 'ShareScore'};
 var _user$project$Bingo$CloseAlert = {ctor: 'CloseAlert'};
 var _user$project$Bingo$viewAlertMessage = function (alertMessage) {
 	var _p0 = alertMessage;
@@ -9618,6 +9660,45 @@ var _user$project$Bingo$update = F2(
 						{gameNumber: _p1._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			case 'ShareScore':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Bingo$postScore(model)
+				};
+			case 'NewScore':
+				if (_p1._0.ctor === 'Ok') {
+					var message = A2(
+						_elm_lang$core$Basics_ops['++'],
+						'Your score of ',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(_p1._0._0.score),
+							' was successfully shared!'));
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								alertMessage: _elm_lang$core$Maybe$Just(message)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					var message = A2(
+						_elm_lang$core$Basics_ops['++'],
+						'Error posting your score: ',
+						_elm_lang$core$Basics$toString(_p1._0._0));
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								alertMessage: _elm_lang$core$Maybe$Just(message)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
 			case 'NewGame':
 				return {
 					ctor: '_Tuple2',
@@ -9801,7 +9882,22 @@ var _user$project$Bingo$view = function (model) {
 												_0: _elm_lang$html$Html$text('New Game'),
 												_1: {ctor: '[]'}
 											}),
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$button,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$ShareScore),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Share Score'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}
 									}),
 								_1: {
 									ctor: '::',
