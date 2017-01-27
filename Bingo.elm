@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Random exposing (generate)
+import Http
 
 -- MODEL
 type alias Model =
@@ -26,20 +27,12 @@ initialModel =
     {
       name = "Mike",
       gameNumber = 1,
-      entries = initialEntries
+      entries = []
     }
 
-initialEntries : List Entry
-initialEntries =
-    [
-      Entry 1 "Future-Proof" 100 False,
-      Entry 2 "Doing Agile" 200 False,
-      Entry 3 "In The Cloud" 300 False,
-      Entry 4 "Rock-Star Ninja" 400 False
-    ]
 
 -- UPDATE
-type Msg = NewGame | Mark Int | NewRandom Int
+type Msg = NewGame | Mark Int | NewRandom Int | NewEntries (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -47,8 +40,21 @@ update msg model =
   case msg of
     NewRandom randomNumber ->
       ({ model | gameNumber = randomNumber }, Cmd.none)
+
     NewGame ->
-        ({ model | entries = initialEntries }, generateRandomNumber)
+        ({ model | gameNumber = model.gameNumber + 1 }, getEntries)
+
+    NewEntries (Ok jsonString) ->
+      let
+          _ = Debug.log "It Worked!" jsonString
+      in
+          (model, Cmd.none)
+    NewEntries (Err error) ->
+      let
+          _ = Debug.log "Oops!" error
+      in
+          (model, Cmd.none)
+
     Mark id ->
       let
           markEntry e =
@@ -64,6 +70,19 @@ update msg model =
 generateRandomNumber : Cmd Msg
 generateRandomNumber =
   Random.generate NewRandom (Random.int 1 100)
+
+
+entriesUrl : String
+entriesUrl =
+  "http://localhost:3000/random-entries"
+
+
+getEntries : Cmd Msg
+getEntries =
+  entriesUrl
+    |> Http.getString
+    |> Http.send NewEntries
+
 
 -- VIEW
 playerInfo : String -> Int -> String
@@ -151,7 +170,7 @@ main : Program Never Model Msg
 main =
   Html.program
   {
-    init = (initialModel, generateRandomNumber),
+    init = (initialModel, getEntries),
     view = view,
     update = update,
     subscriptions = (\_ -> Sub.none)
