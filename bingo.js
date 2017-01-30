@@ -9471,6 +9471,114 @@ var _user$project$ViewHelpers$primaryButton = F2(
 			});
 	});
 
+var _user$project$Entry$sumMarkedPoints = function (entries) {
+	return _elm_lang$core$List$sum(
+		A2(
+			_elm_lang$core$List$map,
+			function (_) {
+				return _.points;
+			},
+			A2(
+				_elm_lang$core$List$filter,
+				function (_) {
+					return _.marked;
+				},
+				entries)));
+};
+var _user$project$Entry$viewEntryItem = F2(
+	function (msg, entry) {
+		return A2(
+			_elm_lang$html$Html$li,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$classList(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'marked', _1: entry.marked},
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(
+						msg(entry.id)),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('phrase'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(entry.phrase),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$span,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('points'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(entry.points)),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _user$project$Entry$viewEntryList = F2(
+	function (msg, entries) {
+		var listOfEntries = A2(
+			_elm_lang$core$List$map,
+			_user$project$Entry$viewEntryItem(msg),
+			entries);
+		return A2(
+			_elm_lang$html$Html$ul,
+			{ctor: '[]'},
+			listOfEntries);
+	});
+var _user$project$Entry$markEntryWithId = F2(
+	function (entries, id) {
+		var markEntry = function (e) {
+			return _elm_lang$core$Native_Utils.eq(e.id, id) ? _elm_lang$core$Native_Utils.update(
+				e,
+				{marked: !e.marked}) : e;
+		};
+		return A2(_elm_lang$core$List$map, markEntry, entries);
+	});
+var _user$project$Entry$Entry = F4(
+	function (a, b, c, d) {
+		return {id: a, phrase: b, points: c, marked: d};
+	});
+var _user$project$Entry$entryDecoder = A5(
+	_elm_lang$core$Json_Decode$map4,
+	_user$project$Entry$Entry,
+	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'phrase', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'points', _elm_lang$core$Json_Decode$int),
+	_elm_lang$core$Json_Decode$succeed(false));
+var _user$project$Entry$getEntries = F2(
+	function (msg, url) {
+		return A2(
+			_elm_lang$http$Http$send,
+			msg,
+			A2(
+				_elm_lang$http$Http$get,
+				url,
+				_elm_lang$core$Json_Decode$list(_user$project$Entry$entryDecoder)));
+	});
+
 var _user$project$Bingo$viewScore = function (sum) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -9512,20 +9620,6 @@ var _user$project$Bingo$viewScore = function (sum) {
 			}
 		});
 };
-var _user$project$Bingo$sumMarkedPoints = function (entries) {
-	return _elm_lang$core$List$sum(
-		A2(
-			_elm_lang$core$List$map,
-			function (_) {
-				return _.points;
-			},
-			A2(
-				_elm_lang$core$List$filter,
-				function (_) {
-					return _.marked;
-				},
-				entries)));
-};
 var _user$project$Bingo$viewFooter = A2(
 	_elm_lang$html$Html$footer,
 	{ctor: '[]'},
@@ -9562,7 +9656,6 @@ var _user$project$Bingo$viewHeader = function (title) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Bingo$entriesUrl = 'http://localhost:3000/random-entries';
 var _user$project$Bingo$encodeScore = function (model) {
 	return _elm_lang$core$Json_Encode$object(
 		{
@@ -9578,7 +9671,7 @@ var _user$project$Bingo$encodeScore = function (model) {
 					ctor: '_Tuple2',
 					_0: 'score',
 					_1: _elm_lang$core$Json_Encode$int(
-						_user$project$Bingo$sumMarkedPoints(model.entries))
+						_user$project$Entry$sumMarkedPoints(model.entries))
 				},
 				_1: {ctor: '[]'}
 			}
@@ -9601,17 +9694,6 @@ var _user$project$Bingo$Model = F6(
 	function (a, b, c, d, e, f) {
 		return {name: a, gameNumber: b, entries: c, alertMessage: d, nameInput: e, gameState: f};
 	});
-var _user$project$Bingo$Entry = F4(
-	function (a, b, c, d) {
-		return {id: a, phrase: b, points: c, marked: d};
-	});
-var _user$project$Bingo$entryDecoder = A5(
-	_elm_lang$core$Json_Decode$map4,
-	_user$project$Bingo$Entry,
-	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode$field, 'phrase', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'points', _elm_lang$core$Json_Decode$int),
-	_elm_lang$core$Json_Decode$succeed(false));
 var _user$project$Bingo$Score = F3(
 	function (a, b, c) {
 		return {id: a, name: b, score: c};
@@ -9748,13 +9830,7 @@ var _user$project$Bingo$CloseAlert = {ctor: 'CloseAlert'};
 var _user$project$Bingo$NewEntries = function (a) {
 	return {ctor: 'NewEntries', _0: a};
 };
-var _user$project$Bingo$getEntries = A2(
-	_elm_lang$http$Http$send,
-	_user$project$Bingo$NewEntries,
-	A2(
-		_elm_lang$http$Http$get,
-		_user$project$Bingo$entriesUrl,
-		_elm_lang$core$Json_Decode$list(_user$project$Bingo$entryDecoder)));
+var _user$project$Bingo$getEntries = A2(_user$project$Entry$getEntries, _user$project$Bingo$NewEntries, 'http://localhost:3000/random-entries');
 var _user$project$Bingo$update = F2(
 	function (msg, model) {
 		var _p2 = msg;
@@ -9873,17 +9949,12 @@ var _user$project$Bingo$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
-				var markEntry = function (e) {
-					return _elm_lang$core$Native_Utils.eq(e.id, _p2._0) ? _elm_lang$core$Native_Utils.update(
-						e,
-						{marked: !e.marked}) : e;
-				};
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							entries: A2(_elm_lang$core$List$map, markEntry, model.entries)
+							entries: A2(_user$project$Entry$markEntryWithId, model.entries, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -9898,64 +9969,6 @@ var _user$project$Bingo$generateRandomNumber = A2(
 	A2(_elm_lang$core$Random$int, 1, 100));
 var _user$project$Bingo$Mark = function (a) {
 	return {ctor: 'Mark', _0: a};
-};
-var _user$project$Bingo$viewEntryItem = function (entry) {
-	return A2(
-		_elm_lang$html$Html$li,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$classList(
-				{
-					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 'marked', _1: entry.marked},
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Events$onClick(
-					_user$project$Bingo$Mark(entry.id)),
-				_1: {ctor: '[]'}
-			}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$span,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('phrase'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(entry.phrase),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$span,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('points'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(entry.points)),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}
-		});
-};
-var _user$project$Bingo$viewEntryList = function (entries) {
-	var listOfEntries = A2(_elm_lang$core$List$map, _user$project$Bingo$viewEntryItem, entries);
-	return A2(
-		_elm_lang$html$Html$ul,
-		{ctor: '[]'},
-		listOfEntries);
 };
 var _user$project$Bingo$NewGame = {ctor: 'NewGame'};
 var _user$project$Bingo$view = function (model) {
@@ -9980,11 +9993,11 @@ var _user$project$Bingo$view = function (model) {
 						_0: _user$project$Bingo$viewNameInput(model),
 						_1: {
 							ctor: '::',
-							_0: _user$project$Bingo$viewEntryList(model.entries),
+							_0: A2(_user$project$Entry$viewEntryList, _user$project$Bingo$Mark, model.entries),
 							_1: {
 								ctor: '::',
 								_0: _user$project$Bingo$viewScore(
-									_user$project$Bingo$sumMarkedPoints(model.entries)),
+									_user$project$Entry$sumMarkedPoints(model.entries)),
 								_1: {
 									ctor: '::',
 									_0: A2(

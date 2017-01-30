@@ -8,6 +8,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder, field, succeed)
 import Json.Encode as Encode
 import ViewHelpers exposing (..)
+import Entry
 
 -- MODEL
 type GameState = EnteringName | Playing
@@ -16,20 +17,11 @@ type alias Model =
   {
     name : String,
     gameNumber : Int,
-    entries: List Entry,
+    entries: List Entry.Entry,
     alertMessage : Maybe String,
     nameInput : String,
     gameState : GameState
   }
-
-type alias Entry =
-  {
-    id : Int,
-    phrase : String,
-    points : Int,
-    marked : Bool
-  }
-
 
 type alias Score =
   {
@@ -56,7 +48,7 @@ type Msg
     = NewGame
     | Mark Int
     | NewRandom Int
-    | NewEntries (Result Http.Error (List Entry))
+    | NewEntries (Result Http.Error (List Entry.Entry))
     | CloseAlert
     | ShareScore
     | NewScore (Result Http.Error Score)
@@ -114,14 +106,7 @@ update msg model =
       ({ model | alertMessage = Nothing}, Cmd.none)
 
     Mark id ->
-      let
-          markEntry e =
-            if e.id == id then
-              { e | marked = ( not e.marked ) }
-            else
-              e
-      in
-          ({ model | entries = List.map markEntry model.entries }, Cmd.none)
+      ({ model | entries = Entry.markEntryWithId model.entries id }, Cmd.none)
 
 
 httpErrorToMessage : Http.Error -> String
@@ -141,15 +126,6 @@ httpErrorToMessage error =
 
 
 -- DECODERS/ENCODERS
-entryDecoder : Decoder Entry
-entryDecoder =
-  Decode.map4 Entry
-    (field "id" Decode.int)
-    (field "phrase" Decode.string)
-    (field "points" Decode.int)
-    (succeed False)
-
-
 scoreDecoder : Decoder Score
 scoreDecoder =
   Decode.map3 Score
@@ -163,7 +139,7 @@ encodeScore model =
   Encode.object
     [
       ("name", Encode.string model.name),
-      ("score", Encode.int (sumMarkedPoints model.entries))
+      ("score", Encode.int (Entry.sumMarkedPoints model.entries))
     ]
 
 
@@ -171,11 +147,6 @@ encodeScore model =
 generateRandomNumber : Cmd Msg
 generateRandomNumber =
   Random.generate NewRandom (Random.int 1 100)
-
-
-entriesUrl : String
-entriesUrl =
-  "http://localhost:3000/random-entries"
 
 
 postScore : Model -> Cmd Msg
@@ -196,10 +167,7 @@ postScore model =
 
 getEntries : Cmd Msg
 getEntries =
-  (Decode.list entryDecoder)
-    |> Http.get entriesUrl
-    |> Http.send NewEntries
-
+  Entry.getEntries NewEntries "http://localhost:3000/random-entries"
 
 -- VIEW
 viewPlayer : String -> Int -> Html Msg
@@ -225,32 +193,6 @@ viewFooter =
     ]
 
 
-viewEntryItem : Entry -> Html Msg
-viewEntryItem entry =
-  li [ classList [("marked", entry.marked)], onClick (Mark entry.id) ]
-    [
-      span [ class "phrase" ] [ text entry.phrase ],
-      span [ class "points" ] [ text (toString entry.points) ]
-    ]
-
-
-viewEntryList : List Entry -> Html Msg
-viewEntryList entries =
-  let
-    listOfEntries =
-      List.map viewEntryItem entries
-  in
-    ul [] listOfEntries
-
-
-sumMarkedPoints : List Entry -> Int
-sumMarkedPoints entries =
-  entries
-    |> List.filter .marked
-    |> List.map .points
-    |> List.sum
-
-
 viewScore : Int -> Html Msg
 viewScore sum =
   div
@@ -269,8 +211,8 @@ view model =
       viewPlayer model.name model.gameNumber,
       alert CloseAlert  model.alertMessage,
       viewNameInput model,
-      viewEntryList model.entries,
-      viewScore (sumMarkedPoints model.entries),
+      Entry.viewEntryList Mark model.entries,
+      viewScore (Entry.sumMarkedPoints model.entries),
       div [ class "button-group" ]
           [
             primaryButton NewGame "New Game",
